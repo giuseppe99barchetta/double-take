@@ -1,25 +1,35 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [ main, beta ]
   pull_request:
     branches: [ main, beta ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v4 # Aggiornato a v4
+      uses: actions/checkout@v4
 
     - name: Setup Node
-      uses: actions/setup-node@v4 # Aggiornato a v4
+      uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
+        cache: 'npm'
 
+    # Install dependencies using cache-aware npm ci
     - name: Install dependencies
-      run: npm i && cd api && npm i && cd ../frontend && npm i && cd ../
+      run: |
+        npm ci
+        cd api && npm ci
+        cd ../frontend && npm ci
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
@@ -28,7 +38,7 @@ jobs:
       run: npx playwright test
 
     - name: Upload Playwright report
-      uses: actions/upload-artifact@v4 # SOLUZIONE: Aggiornato a v4
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-report
