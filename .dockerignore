@@ -1,9 +1,9 @@
 *
 
 !.build/entrypoint.sh
-!frontend/*
-!api/*
-!recognizer/*
+!frontend/**
+!api/**
+!recognizer/**
 
 */node_modules
 */.DS_Store
