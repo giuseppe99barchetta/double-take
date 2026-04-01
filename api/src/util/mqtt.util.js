@@ -275,7 +275,7 @@ module.exports.recognize = (data) => {
             retain: true,
             message: 'not_home',
           });
-        }, 1000 * 60 * FRIGATE.DEVICE_TRACKER_TIMEOUT); // 30 min
+        }, 1000 * 60 * (FRIGATE?.DEVICE_TRACKER_TIMEOUT ?? 30)); // 30 min default
 
         messages.push({
           topic: `${MQTT.TOPICS.HOMEASSISTANT}/sensor/double-take/${topic}/config`,

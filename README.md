@@ -458,14 +458,9 @@ frigate:
     #     # custom image that will be used in place of snapshot.jpg
     #     snapshot: http://camera-url.com/image.jpg
 
-    # This option allows setting a custom time delay for the MQTT home
-    # assistant device tracker.                                                   
-                                                                                
-    # By adjusting  device_tracker_timeout , users can determine how long they    
-    # want to wait before receiving a 'not_home' message when no person is        
-    # recognized. The time delay is implemented in minutes and the default value  
-    # is set to 30 minutes
-    device_tracker_timeout: 30
+  # minutes to wait before the Home Assistant device tracker resets to 'not_home'
+  # after a person was last recognised (optional, defaults to 30)
+  device_tracker_timeout: 30
 ```
 
 ### `cameras`

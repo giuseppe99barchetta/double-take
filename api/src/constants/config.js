@@ -175,6 +175,6 @@ module.exports.frigate = ({ id, camera, topic }) => {
     attempts,
     stop_on_match: stopOnMatch,
     min_area: minArea,
-    device_tracker_timeout: deviceTrackerTimeout,
+    device_tracker_timeout: deviceTrackerTimeout ?? 30,
   });
 };
