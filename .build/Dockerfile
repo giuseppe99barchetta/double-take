@@ -1,7 +1,5 @@
-# syntax=docker/dockerfile:1.6
-
 # =========================
-# Frontend build stage
+# 1. Frontend build stage
 # =========================
 FROM --platform=$BUILDPLATFORM oven/bun:1.0.11 AS frontend-builder
 WORKDIR /build
@@ -10,20 +8,20 @@ WORKDIR /build
 COPY frontend/package.json frontend/bun.lockb ./
 RUN bun install --frozen-lockfile
 
-# Copy source
+# Copy source and build
 COPY frontend/ .
 RUN bun run build
 
 
 # =========================
-# Backend build stage
+# 2. Backend build stage
 # =========================
 FROM node:18-slim AS build
 WORKDIR /double-take/api
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build deps (serve per canvas)
+# Install build deps for native modules (like canvas)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3 \
@@ -34,17 +32,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpixman-1-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install backend dependencies
 COPY api/package.json api/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --prefer-offline --no-audit --progress=false
 
-# Copy source
+# Copy backend source
 COPY api/ .
 
 
 # =========================
-# Final runtime image
+# 3. Final runtime image
 # =========================
 FROM node:18-slim
 
@@ -52,7 +50,7 @@ WORKDIR /double-take
 ENV NODE_ENV=production
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Solo runtime deps (molto più leggero)
+# Install runtime dependencies, jq and NODEMON
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2 \
     libpango-1.0-0 \
@@ -60,20 +58,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgif7 \
     libpixman-1-0 \
     ca-certificates \
+    jq \
+    && npm install -g nodemon \
+    && npm cache clean --force \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy backend
+# Copy backend from build stage
 COPY --from=build /double-take /double-take
 
-# Copy frontend build
+# Copy frontend build to the correct directory
 COPY --from=frontend-builder /build/dist ./frontend
 
-# Storage
+# Setup storage and symbolic link
 RUN mkdir -p /.storage && ln -s /.storage /double-take/.storage
 
-# Entrypoint
+# Copy and setup Entrypoint script
 COPY .build/entrypoint.sh ./
 RUN chmod +x ./entrypoint.sh
 
+# Expose application port
 EXPOSE 3000
+
+# Start via entrypoint script (which now has access to nodemon)
 ENTRYPOINT ["./entrypoint.sh"]
