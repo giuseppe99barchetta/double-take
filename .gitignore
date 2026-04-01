@@ -12,7 +12,6 @@ models
 .env
 .env.*.local
 config.yml
-package-lock.json
 
 *.log
 *.pid
