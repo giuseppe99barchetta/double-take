@@ -15,28 +15,67 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # =========================
+    # Checkout
+    # =========================
     - name: Checkout
       uses: actions/checkout@v4
 
+    # =========================
+    # Setup Node (backend)
+    # =========================
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: 20
         cache: 'npm'
+        cache-dependency-path: api/package-lock.json
 
-    # Install dependencies using cache-aware npm ci
-    - name: Install dependencies
+    # =========================
+    # Install backend deps
+    # =========================
+    - name: Install backend dependencies
       run: |
+        cd api
         npm ci
-        cd api && npm ci
-        cd ../frontend && npm ci
 
+    # =========================
+    # Setup Bun (frontend)
+    # =========================
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1
+
+    # =========================
+    # Install frontend deps
+    # =========================
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        bun install --frozen-lockfile
+
+    # =========================
+    # Build frontend (important per Playwright)
+    # =========================
+    - name: Build frontend
+      run: |
+        cd frontend
+        bun run build
+
+    # =========================
+    # Install Playwright
+    # =========================
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
+    # =========================
+    # Run tests
+    # =========================
     - name: Run Playwright tests
       run: npx playwright test
 
+    # =========================
+    # Upload report
+    # =========================
     - name: Upload Playwright report
       uses: actions/upload-artifact@v4
       if: always()
