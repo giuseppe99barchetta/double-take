@@ -5,50 +5,60 @@ on:
     branches:
       - '*'
   workflow_dispatch:
-    
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/double-take
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         target: ['']
       fail-fast: false
+
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - id: lowercaseRepo
       uses: ASzc/change-string-case-action@v6
       with:
         string: ${{ github.repository }}
-    - name: Check out code
-      uses: actions/checkout@v4
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    - name: Login to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Log in to the DockerHub
+
+    - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
         registry: docker.io
         username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    # 🏷️ Tag management
     - name: Create short sha and tag
       shell: bash
       run: |
         echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
-        if [[ "$GITHUB_REF" == "refs/heads/beta" ]]; then echo TAG=beta; else echo TAG="latest"; fi >> $GITHUB_ENV
+        if [[ "$GITHUB_REF" == "refs/heads/beta" ]]; then
+          echo "TAG=beta" >> $GITHUB_ENV
+        else
+          echo "TAG=latest" >> $GITHUB_ENV
+        fi
+
+    # 🧾 Metadata for Docker tags
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v5
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         images: |
           ghcr.io/${{ steps.lowercaseRepo.outputs.lowercase }}
-          ${{ steps.lowercaseRepo.outputs.lowercase }}
+          ${{ env.DOCKER_IMAGE }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
@@ -60,7 +70,9 @@ jobs:
         flavor: |
           latest=${{ matrix.target == '' && github.ref == 'refs/heads/main' }}
           suffix=${{ matrix.target }}
-    - name: Build Docker Image
+
+    # 🐳 Build & push multi-arch
+    - name: Build and Push Docker Image
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -71,52 +83,13 @@ jobs:
         platforms: linux/amd64,linux/arm64,linux/arm/v7
         cache-from: type=gha
         cache-to: type=gha,mode=max
-    - name: Sync
+
+    # 📄 Sync README to Docker Hub
+    - name: Sync README to Docker Hub
       uses: ms-jpq/sync-dockerhub-readme@v1
       if: github.ref == 'refs/heads/beta'
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        repository:  ${{ steps.lowercaseRepo.outputs.lowercase }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+        repository: ${{ env.DOCKER_IMAGE }}
         readme: "./README.md"
-      
-    - name: poco
-      run: |
-        cd .build/bundle
-        rm -rf assets*
-        docker create --platform linux/arm/v7 --name double-take-armv7 ${{ github.actor }}/double-take:$TAG
-        docker export double-take-armv7 | xz > assets.tar.xz
-        docker rm double-take-armv7
-
-        go mod tidy
-        GOARCH="arm" GOARM=7 CGO_ENABLED=0 go build -ldflags "-s -w" -trimpath -o double-take-armv7
-
-        rm -rf assets*
-        docker create --platform linux/arm64 --name double-take-arm64 ${{ github.actor }}/double-take:$TAG
-        docker export double-take-arm64 | xz > assets.tar.xz
-        docker rm double-take-arm64
-
-        GOARCH="arm64" CGO_ENABLED=0 go build -ldflags "-s -w" -trimpath -o double-take-arm64
-        
-        rm -rf assets*
-        docker create --platform linux/amd64 --name double-take-amd64 ${{ github.actor }}/double-take:${{ env.TAG }}
-        docker export double-take-amd64 | xz > assets.tar.xz
-        docker rm double-take-amd64
-
-        GOARCH="amd64" CGO_ENABLED=0 go build -ldflags "-s -w" -trimpath -o double-take-amd64
-        
-    - name: Upload Artifacts armv7
-      uses: actions/upload-artifact@v3
-      with:
-        name: double-take-armv7
-        path: .build/bundle/double-take-armv7
-    - name: Upload Artifacts arm64
-      uses: actions/upload-artifact@v3
-      with:
-        name: double-take-arm64
-        path: .build/bundle/double-take-arm64
-    - name: Upload Artifacts amd64
-      uses: actions/upload-artifact@v3
-      with:
-        name: double-take-amd64
-        path: .build/bundle/double-take-amd64
