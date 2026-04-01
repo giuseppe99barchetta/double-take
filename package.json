@@ -14,17 +14,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/skrashevich/double-take.git"
+    "url": "git+https://github.com/giuseppe99barchetta/double-take.git"
   },
   "engines": {
     "node": ">=18.0.0 <19.0.0"
   },
-  "author": "Sergei Krashevich",
+  "author": "Giuseppe Barchetta",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/skrashevich/double-take/issues"
+    "url": "https://github.com/giuseppe99barchetta/double-take/issues"
   },
-  "homepage": "https://github.com/skrashevich/double-take#readme",
+  "homepage": "https://github.com/giuseppe99barchetta/double-take#readme",
   "devDependencies": {
     "@playwright/test": "^1.40.0",
     "@types/node": "^18.18.0",
