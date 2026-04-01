@@ -26,8 +26,7 @@ ENV CC="ccache gcc"
 ENV CXX="ccache g++"
 
 # Install build dependencies with cache support
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt update && apt install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
     gcc g++ make \
     libpixman-1-dev libcairo2-dev libpango1.0-dev \
     libjpeg-dev libgif-dev \
@@ -52,14 +51,11 @@ ENV NODE_ENV=production
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install only runtime dependencies
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt update && apt install -y --no-install-recommends \
-    jq \
-    libcairo2 \
-    libpangocairo-1.0-0 \
-    libjpeg62-turbo \
-    libgif7 \
-    librsvg2-2 \
+RUN apt update && apt install -y --no-install-recommends \
+    gcc g++ make \
+    libpixman-1-dev libcairo2-dev libpango1.0-dev \
+    libjpeg-dev libgif-dev \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend and frontend build artifacts
