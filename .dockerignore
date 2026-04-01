@@ -1,13 +1,44 @@
+# =========================
+# Ignore everything by default
+# =========================
 *
 
+# =========================
+# Include only required sources
+# =========================
+!.build/
 !.build/entrypoint.sh
+
 !frontend/**
 !api/**
 !recognizer/**
 
-*/node_modules
-*/.DS_Store
-api/.*
+# =========================
+# Exclude unnecessary files
+# =========================
 
-*/models
-*/.storage
+# Dependencies
+**/node_modules
+
+# OS junk
+**/.DS_Store
+**/Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Env files (if any)
+**/.env
+**/.env.*
+
+# Storage / runtime data
+**/.storage
+**/models
+
+# Logs
+**/*.log
+
+# Optional: editor configs
+.vscode
+.idea
