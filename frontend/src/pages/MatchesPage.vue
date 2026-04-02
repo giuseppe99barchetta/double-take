@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto flex max-w-[1100px] flex-col gap-4 pb-6">
+  <PageContainer>
     <header class="flex flex-col gap-4 border-b border-white/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
       <div class="max-w-2xl">
         <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/65">Matches</p>
@@ -8,23 +8,23 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2 text-sm">
-        <div class="rounded-full border border-white/10 bg-[#0c1621] px-3 py-1.5 text-white/70">
+        <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
           <span class="text-white/40">Events</span>
           <span class="ml-2 font-semibold text-white">{{ matchCount }}</span>
         </div>
-        <div class="rounded-full border border-white/10 bg-[#0c1621] px-3 py-1.5 text-white/70">
+        <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
           <span class="text-white/40">Unknown</span>
           <span class="ml-2 font-semibold text-white">{{ unknownCount }}</span>
         </div>
-        <div class="rounded-full border border-white/10 bg-[#0c1621] px-3 py-1.5 text-white/70">
+        <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
           <span class="text-white/40">Avg</span>
           <span class="ml-2 font-semibold text-white">{{ averageConfidence }}%</span>
         </div>
       </div>
     </header>
 
-    <section class="space-y-4">
-      <div class="rounded-[1.5rem] border border-white/10 bg-[#09131d] p-4">
+    <section class="space-y-6">
+      <BaseCard>
         <MatchesToolbar
           :has-active-filters="hasActiveFilters"
           :max-confidence="maxConfidence"
@@ -67,23 +67,23 @@
             />
           </Transition>
         </div>
-      </div>
+      </BaseCard>
 
-      <SurfaceCard v-if="error">
+      <BaseCard v-if="error">
           <div class="flex flex-col gap-2 py-2">
             <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-rose-300/70">API Error</p>
             <p class="text-sm leading-6 text-rose-200/80">{{ error }}</p>
           </div>
-        </SurfaceCard>
+        </BaseCard>
 
         <div
           v-if="loading"
-          class="grid gap-3 sm:grid-cols-2"
+          class="grid gap-4 sm:grid-cols-2"
         >
           <div
             v-for="n in 6"
             :key="n"
-            class="animate-pulse overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0c1621] p-3"
+            class="animate-pulse overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-3"
           >
             <div class="aspect-[4/3] rounded-xl bg-white/5" />
             <div class="mt-3 h-4 w-2/3 rounded bg-white/5" />
@@ -93,19 +93,19 @@
 
         <div
           v-else
-          class="grid gap-3 sm:grid-cols-2"
+          class="grid gap-4 sm:grid-cols-2"
         >
           <div
             v-if="matches.length === 0"
             class="col-span-full"
           >
-            <div class="rounded-[1.5rem] border border-white/10 bg-[#0c1621] p-5">
+            <BaseCard>
               <div class="flex flex-col items-start gap-3 py-4">
                 <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-white/45">No results</p>
                 <h2 class="text-xl font-semibold tracking-tight text-white">No events match the current filters.</h2>
                 <p class="max-w-xl text-sm leading-7 text-white/60">Try clearing filters, widening the confidence range, or searching for another name.</p>
               </div>
-            </div>
+            </BaseCard>
           </div>
           <MatchCard
             v-for="match in matches"
@@ -118,7 +118,7 @@
         </div>
 
     </section>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
@@ -127,7 +127,8 @@ import MatchCard from '@/features/matches/components/MatchCard.vue';
 import MatchQuickFilters from '@/features/matches/components/MatchQuickFilters.vue';
 import MatchesToolbar from '@/features/matches/components/MatchesToolbar.vue';
 import { useMatches } from '@/features/matches/composables/useMatches';
-import SurfaceCard from '@/shared/ui/SurfaceCard.vue';
+import BaseCard from '@/shared/ui/BaseCard.vue';
+import PageContainer from '@/shared/ui/PageContainer.vue';
 
 const {
   activeFilters,

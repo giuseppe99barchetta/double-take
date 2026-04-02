@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="tooltip-fade">
       <div
-        v-if="visible && triggerRef"
+        v-if="visible && triggerElement"
         role="tooltip"
         class="pointer-events-none fixed left-0 top-0 z-[9999]"
         :style="tooltipStyle"
@@ -18,19 +18,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, unref } from 'vue';
 
 const props = defineProps<{
   text: string;
-  triggerRef: HTMLElement | null;
+  triggerRef: HTMLElement | null | { value: HTMLElement | null };
   visible: boolean;
 }>();
 
+const triggerElement = computed(() => {
+  const ref = props.triggerRef;
+  // Handle both ref objects and direct elements
+  return ref && 'value' in ref ? ref.value : ref;
+});
+
 const tooltipStyle = computed(() => {
-  if (!props.visible || !props.triggerRef) return {};
+  if (!props.visible || !triggerElement.value) return {};
 
   const gap = 12;
-  const rect = props.triggerRef.getBoundingClientRect();
+  const rect = triggerElement.value.getBoundingClientRect();
 
   // Position tooltip to the right of trigger, centered vertically.
   const left = rect.right + gap;

@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-5 lg:space-y-7">
+  <PageContainer>
     <TransitionGroup
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="translate-y-2 opacity-0"
@@ -27,59 +27,56 @@
       </div>
     </TransitionGroup>
 
-    <!-- Header -->
-    <SurfaceCard>
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/70">Settings</p>
-          <h1 class="mt-3 text-3xl font-semibold tracking-tight text-white lg:text-4xl">System configuration</h1>
-          <p v-if="config" class="mt-2 text-sm text-white/50">
+    <header class="flex flex-col gap-4 border-b border-white/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl">
+          <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/65">Settings</p>
+          <h1 class="mt-2 text-2xl font-semibold tracking-tight text-white lg:text-3xl">System configuration</h1>
+          <p v-if="config" class="mt-2 text-sm leading-6 text-white/55">
             Double Take v{{ config.version }} &middot; Auth: {{ config.auth ? 'enabled' : 'disabled' }}
           </p>
         </div>
-        <div v-if="config" class="grid grid-cols-3 gap-3 lg:min-w-[360px]">
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <p class="text-[0.65rem] uppercase tracking-[0.22em] text-white/40">Detectors</p>
-            <p class="mt-2 text-xl font-semibold text-white">{{ Object.keys(config.detectors ?? {}).length }}</p>
+        <div v-if="config" class="flex flex-wrap items-center gap-2 text-sm">
+          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
+            <span class="text-white/40">Detectors</span>
+            <span class="ml-2 font-semibold text-white">{{ Object.keys(config.detectors ?? {}).length }}</span>
           </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <p class="text-[0.65rem] uppercase tracking-[0.22em] text-white/40">Cameras</p>
-            <p class="mt-2 text-xl font-semibold text-white">{{ Object.keys(config.cameras ?? {}).length }}</p>
+          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
+            <span class="text-white/40">Cameras</span>
+            <span class="ml-2 font-semibold text-white">{{ Object.keys(config.cameras ?? {}).length }}</span>
           </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <p class="text-[0.65rem] uppercase tracking-[0.22em] text-white/40">Log level</p>
-            <p class="mt-2 text-xl font-semibold text-white capitalize">{{ config.logs?.level ?? '—' }}</p>
+          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-white/70 transition hover:border-white/15 hover:bg-white/8">
+            <span class="text-white/40">Log</span>
+            <span class="ml-2 font-semibold capitalize text-white">{{ config.logs?.level ?? '—' }}</span>
           </div>
         </div>
-      </div>
-    </SurfaceCard>
+    </header>
 
     <!-- Error -->
-    <SurfaceCard v-if="error">
+    <BaseCard v-if="error">
       <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-rose-300/70">Error</p>
       <p class="mt-2 text-sm text-rose-200/80">{{ error }}</p>
-    </SurfaceCard>
+    </BaseCard>
 
     <!-- Loading skeleton -->
     <div v-if="initialLoading" class="space-y-4">
-      <SurfaceCard class="animate-pulse">
+      <BaseCard class="animate-pulse">
         <div class="h-4 w-1/4 rounded bg-white/5" />
         <div class="mt-4 space-y-3">
           <div class="h-3 w-full rounded bg-white/5" />
           <div class="h-3 w-5/6 rounded bg-white/5" />
           <div class="h-3 w-2/3 rounded bg-white/5" />
         </div>
-      </SurfaceCard>
+      </BaseCard>
     </div>
 
     <template v-else-if="config">
       <!-- Detection thresholds -->
-      <SurfaceCard>
+      <BaseCard>
         <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-white/45">Detection thresholds</p>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+          <BaseCard content-class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-widest text-emerald-300/70">Match</p>
-            <dl class="mt-3 space-y-2 text-sm">
+            <dl class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <dt class="text-white/50">Confidence</dt>
                 <dd class="font-medium text-white">{{ config.detect?.match?.confidence ?? '—' }}%</dd>
@@ -97,10 +94,10 @@
                 <dd class="font-medium text-white">{{ config.detect?.match?.purge ?? '—' }}h</dd>
               </div>
             </dl>
-          </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+          </BaseCard>
+          <BaseCard content-class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-widest text-amber-300/70">Unknown</p>
-            <dl class="mt-3 space-y-2 text-sm">
+            <dl class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <dt class="text-white/50">Confidence</dt>
                 <dd class="font-medium text-white">{{ config.detect?.unknown?.confidence ?? '—' }}%</dd>
@@ -118,21 +115,21 @@
                 <dd class="font-medium text-white">{{ config.detect?.unknown?.purge ?? '—' }}h</dd>
               </div>
             </dl>
-          </div>
+          </BaseCard>
         </div>
-      </SurfaceCard>
+      </BaseCard>
 
       <!-- Detectors -->
-      <SurfaceCard v-if="Object.keys(config.detectors ?? {}).length > 0">
+      <BaseCard v-if="Object.keys(config.detectors ?? {}).length > 0">
         <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-white/45">Detectors</p>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <div
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <BaseCard
             v-for="(det, name) in config.detectors"
             :key="name"
-            class="rounded-[1.5rem] border border-white/10 bg-black/20 p-4"
+            content-class="space-y-3"
           >
             <p class="text-sm font-semibold capitalize text-white">{{ name }}</p>
-            <dl class="mt-3 space-y-1.5 text-xs">
+            <dl class="space-y-1.5 text-xs">
               <div v-if="det.url" class="flex justify-between gap-2">
                 <dt class="shrink-0 text-white/45">URL</dt>
                 <dd class="truncate text-right font-medium text-white/80">{{ det.url }}</dd>
@@ -146,35 +143,35 @@
                 <dd class="font-medium text-white/80">{{ det.det_prob_threshold }}</dd>
               </div>
             </dl>
-          </div>
+          </BaseCard>
         </div>
-      </SurfaceCard>
+      </BaseCard>
 
       <!-- MQTT -->
-      <SurfaceCard v-if="config.mqtt?.host">
+      <BaseCard v-if="config.mqtt?.host">
         <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-white/45">MQTT</p>
-        <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <dt class="text-[0.65rem] uppercase tracking-widest text-white/40">Host</dt>
-            <dd class="mt-1 font-medium text-white">{{ config.mqtt.host }}</dd>
-          </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <dt class="text-[0.65rem] uppercase tracking-widest text-white/40">Port</dt>
-            <dd class="mt-1 font-medium text-white">{{ config.mqtt.port && config.mqtt.port > 0 ? config.mqtt.port : 1883 }}</dd>
-          </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <dt class="text-[0.65rem] uppercase tracking-widest text-white/40">Events topic</dt>
-            <dd class="mt-1 truncate font-medium text-white">{{ config.mqtt.topics?.frigate ?? '—' }}</dd>
-          </div>
-          <div class="rounded-[1.5rem] border border-white/10 bg-black/20 px-4 py-3">
-            <dt class="text-[0.65rem] uppercase tracking-widest text-white/40">Matches topic</dt>
-            <dd class="mt-1 truncate font-medium text-white">{{ config.mqtt.topics?.matches ?? '—' }}</dd>
-          </div>
-        </dl>
-      </SurfaceCard>
+        <div class="mt-4 grid grid-cols-1 gap-4 text-sm md:grid-cols-2 xl:grid-cols-4">
+          <BaseCard content-class="space-y-3">
+            <p class="text-[0.65rem] uppercase tracking-widest text-white/40">Host</p>
+            <p class="font-medium text-white">{{ config.mqtt.host }}</p>
+          </BaseCard>
+          <BaseCard content-class="space-y-3">
+            <p class="text-[0.65rem] uppercase tracking-widest text-white/40">Port</p>
+            <p class="font-medium text-white">{{ config.mqtt.port && config.mqtt.port > 0 ? config.mqtt.port : 1883 }}</p>
+          </BaseCard>
+          <BaseCard content-class="space-y-3">
+            <p class="text-[0.65rem] uppercase tracking-widest text-white/40">Events topic</p>
+            <p class="truncate font-medium text-white">{{ config.mqtt.topics?.frigate ?? '—' }}</p>
+          </BaseCard>
+          <BaseCard content-class="space-y-3">
+            <p class="text-[0.65rem] uppercase tracking-widest text-white/40">Matches topic</p>
+            <p class="truncate font-medium text-white">{{ config.mqtt.topics?.matches ?? '—' }}</p>
+          </BaseCard>
+        </div>
+      </BaseCard>
 
       <!-- YAML editor -->
-      <SurfaceCard class="overflow-hidden border-white/12 bg-white/[0.04]">
+      <BaseCard class="overflow-hidden border-white/12 bg-white/[0.04]">
         <div class="sticky top-0 z-10 -mx-5 -mt-5 border-b border-white/10 px-5 py-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:py-6">
           <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div class="max-w-2xl">
@@ -235,15 +232,16 @@
         <div class="mt-6 lg:mt-7">
           <YamlCodeEditor v-model="yamlCode" :changed-lines="changedLineNumbers" />
         </div>
-      </SurfaceCard>
+      </BaseCard>
     </template>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue';
 import { useConfig } from '@/features/config/composables/useConfig';
-import SurfaceCard from '@/shared/ui/SurfaceCard.vue';
+import BaseCard from '@/shared/ui/BaseCard.vue';
+import PageContainer from '@/shared/ui/PageContainer.vue';
 
 const YamlCodeEditor = defineAsyncComponent(() => import('@/features/config/components/YamlCodeEditor.vue'));
 
