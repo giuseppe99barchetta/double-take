@@ -28,7 +28,7 @@
     </TransitionGroup>
 
     <header class="flex flex-col gap-4 border-b border-white/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
-      <div class="max-w-2xl">
+      <div class="w-full">
           <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/65">Settings</p>
           <h1 class="mt-2 text-2xl font-semibold tracking-tight text-white lg:text-3xl">System configuration</h1>
           <p v-if="config" class="mt-2 text-sm leading-6 text-white/55">
@@ -174,7 +174,7 @@
       <BaseCard class="overflow-hidden border-white/12 bg-white/[0.04]">
         <div class="sticky top-0 z-10 -mx-5 -mt-5 border-b border-white/10 px-5 py-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:py-6">
           <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-            <div class="max-w-2xl">
+            <div class="w-full">
               <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/60">Configuration</p>
               <h2 class="mt-2 text-2xl font-semibold tracking-tight text-white">YAML Editor</h2>
               <p class="mt-2 text-sm leading-6 text-white/52">Edit advanced configuration directly in YAML. Changes apply immediately after a successful save.</p>
