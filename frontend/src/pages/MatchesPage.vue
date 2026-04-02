@@ -28,6 +28,7 @@
           :has-active-filters="hasActiveFilters"
           :max-confidence="maxConfidence"
           :min-confidence="minConfidence"
+          :overlay-visible="overlayVisible"
           :results-summary="resultsSummary"
           :search-query="searchQuery"
           :sort-options="sortOptions"
@@ -39,6 +40,7 @@
           @reset="resetFilters"
           @update:max-confidence="setMaxConfidence"
           @update:min-confidence="setMinConfidence"
+          @update:overlay-visible="setOverlayVisible"
           @update:search-query="setSearchQuery"
           @update:sort-order="setSortOrder"
           @update:status-filter="setStatusFilter"
@@ -111,10 +113,20 @@
             :key="match.id"
             layout="grid"
             :match="match"
+            :overlay-visible="overlayVisible"
             @confirm="confirm"
             @ignore="ignore"
+            @preview="openViewer"
           />
         </div>
+
+      <MatchViewerModal
+        :match="activeViewerMatch"
+        :open="isViewerOpen"
+        :overlay-visible="overlayVisible"
+        @close="closeViewer"
+        @update:overlay-visible="setOverlayVisible"
+      />
 
     </section>
   </PageContainer>
@@ -124,6 +136,7 @@
 import MatchActiveFilters from '@/features/matches/components/MatchActiveFilters.vue';
 import MatchCard from '@/features/matches/components/MatchCard.vue';
 import MatchQuickFilters from '@/features/matches/components/MatchQuickFilters.vue';
+import MatchViewerModal from '@/features/matches/components/MatchViewerModal.vue';
 import MatchesToolbar from '@/features/matches/components/MatchesToolbar.vue';
 import { useMatches } from '@/features/matches/composables/useMatches';
 import BaseCard from '@/shared/ui/BaseCard.vue';
@@ -134,21 +147,27 @@ const {
   applyQuickFilter,
   averageConfidence,
   clearFilter,
+  closeViewer,
   confirm,
   error,
+  activeViewerMatch,
   hasActiveFilters,
   ignore,
+  isViewerOpen,
   loading,
   matchCount,
   matches,
   maxConfidence,
   minConfidence,
+  openViewer,
+  overlayVisible,
   quickFilters,
   resetFilters,
   resultsSummary,
   searchQuery,
   setMaxConfidence,
   setMinConfidence,
+  setOverlayVisible,
   setSearchQuery,
   setSortOrder,
   setStatusFilter,

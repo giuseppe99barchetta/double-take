@@ -91,14 +91,24 @@
 
     <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
       <div class="text-sm text-white/55">{{ resultsSummary }}</div>
-      <button
-        type="button"
-        class="inline-flex items-center justify-center rounded-full border border-white/10 bg-transparent px-4 py-1.5 text-sm font-medium text-white/70 transition hover:border-white/15 hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-        :disabled="!hasActiveFilters"
-        @click="$emit('reset')"
-      >
-        Clear filters
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm font-medium transition"
+          :class="overlayVisible ? 'border-cyan-300/30 bg-cyan-300/12 text-cyan-100' : 'border-white/10 bg-transparent text-white/70 hover:border-white/15 hover:bg-white/[0.04] hover:text-white'"
+          @click="emit('update:overlayVisible', !overlayVisible)"
+        >
+          {{ overlayVisible ? 'Overlays on' : 'Overlays off' }}
+        </button>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-white/10 bg-transparent px-4 py-1.5 text-sm font-medium text-white/70 transition hover:border-white/15 hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          :disabled="!hasActiveFilters"
+          @click="$emit('reset')"
+        >
+          Clear filters
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -112,6 +122,7 @@ defineProps<{
   hasActiveFilters: boolean;
   maxConfidence: number;
   minConfidence: number;
+  overlayVisible: boolean;
   resultsSummary: string;
   searchQuery: string;
   sortOptions: ReadonlyArray<{ label: string; value: MatchSortOrder }>;
@@ -128,6 +139,7 @@ const emit = defineEmits<{
   (event: 'reset'): void;
   (event: 'update:maxConfidence', value: number): void;
   (event: 'update:minConfidence', value: number): void;
+  (event: 'update:overlayVisible', value: boolean): void;
   (event: 'update:searchQuery', value: string): void;
   (event: 'update:sortOrder', value: MatchSortOrder): void;
   (event: 'update:statusFilter', value: MatchStatusFilter): void;

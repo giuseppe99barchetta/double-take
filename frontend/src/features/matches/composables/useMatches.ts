@@ -74,6 +74,8 @@ export const useMatches = () => {
   const sortOrder = ref<MatchSortOrder>('newest');
   const minConfidence = ref(DEFAULT_MIN_CONFIDENCE);
   const maxConfidence = ref(DEFAULT_MAX_CONFIDENCE);
+  const overlayVisible = ref(true);
+  const activeViewerMatchId = ref<string | null>(null);
 
   watch(minConfidence, (value) => {
     minConfidence.value = clampConfidence(value);
@@ -118,6 +120,14 @@ export const useMatches = () => {
   });
 
   const matches = computed(() => filteredMatches.value);
+  const activeViewerMatch = computed(() => {
+    if (!activeViewerMatchId.value) {
+      return null;
+    }
+
+    return sourceMatches.value.find((match) => match.id === activeViewerMatchId.value) ?? null;
+  });
+  const isViewerOpen = computed(() => activeViewerMatch.value !== null);
   const matchCount = computed(() => matches.value.length);
   const unknownCount = computed(() => matches.value.filter((match) => match.subjectName === null).length);
   const averageConfidence = computed(() => {
@@ -164,6 +174,18 @@ export const useMatches = () => {
 
   const setMaxConfidence = (value: number) => {
     maxConfidence.value = value;
+  };
+
+  const setOverlayVisible = (value: boolean) => {
+    overlayVisible.value = value;
+  };
+
+  const openViewer = (id: string) => {
+    activeViewerMatchId.value = id;
+  };
+
+  const closeViewer = () => {
+    activeViewerMatchId.value = null;
   };
 
   const activeFilters = computed<MatchActiveFilter[]>(() => {
@@ -289,6 +311,7 @@ export const useMatches = () => {
       sourceMatches.value = matchesFromApi;
     } catch (err) {
       sourceMatches.value = [];
+      activeViewerMatchId.value = null;
       error.value = err instanceof Error ? err.message : 'Unable to load matches.';
     } finally {
       loading.value = false;
@@ -342,19 +365,24 @@ export const useMatches = () => {
 
   return {
     activeFilters,
+    activeViewerMatch,
     allMatches,
     applyQuickFilter,
     averageConfidence,
     clearFilter,
+    closeViewer,
     error,
     fetchData,
     filteredMatches,
     hasActiveFilters,
+    isViewerOpen,
     loading,
     matchCount,
     maxConfidence,
     minConfidence,
     matches,
+    openViewer,
+    overlayVisible,
     confirm,
     ignore,
     rename,
@@ -364,6 +392,7 @@ export const useMatches = () => {
     searchQuery,
     setMaxConfidence,
     setMinConfidence,
+    setOverlayVisible,
     setSearchQuery,
     setSortOrder,
     setStatusFilter,

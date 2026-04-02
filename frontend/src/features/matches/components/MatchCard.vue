@@ -9,12 +9,21 @@
           class="relative overflow-hidden shrink-0"
           :class="layout === 'list' ? 'md:w-[280px]' : 'aspect-[4/3]'"
         >
-          <img
-            :src="match.snapshotUrl"
-            :alt="imageAlt"
-            class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-            :class="layout === 'list' ? 'aspect-[4/3] md:h-full md:aspect-auto' : ''"
+          <button
+            type="button"
+            class="block h-full w-full cursor-zoom-in"
+            :aria-label="`Open ${displayName} image in fullscreen`"
+            @click="emit('preview', match.id)"
           >
+            <img
+              :src="match.thumbnailUrl"
+              :alt="imageAlt"
+              class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+              :class="layout === 'list' ? 'aspect-[4/3] md:h-full md:aspect-auto' : ''"
+            >
+          </button>
+
+          <MatchOverlay :detections="match.detections" :visible="overlayVisible" />
 
           <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#08111b]/70 via-transparent to-transparent" />
 
@@ -69,17 +78,20 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import BaseCard from '@/shared/ui/BaseCard.vue';
+import MatchOverlay from '@/features/matches/components/MatchOverlay.vue';
 
 import type { MatchCardLayout, MatchEvent } from '@/features/matches/types';
 
 const props = defineProps<{
   layout: MatchCardLayout;
   match: MatchEvent;
+  overlayVisible: boolean;
 }>();
 
 const emit = defineEmits<{
   (event: 'confirm', id: string): void;
   (event: 'ignore', id: string): void;
+  (event: 'preview', id: string): void;
 }>();
 
 const isUnknown = computed(() => props.match.subjectName === null);
