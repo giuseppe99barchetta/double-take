@@ -6,8 +6,8 @@
 
     <Sidebar @expand-change="isSidebarExpanded = $event" />
 
-    <div class="relative min-h-screen w-full min-w-0 px-3 py-3 transition-[margin-left] duration-200 ease-out sm:px-4 lg:px-6 lg:py-5" :class="isSidebarExpanded ? 'ml-52' : 'ml-16'">
-      <div class="flex min-h-[calc(100vh-1.5rem)] min-w-0 flex-1 flex-col">
+    <div class="relative min-h-screen w-full min-w-0 transition-[padding-left] duration-200 ease-out" :class="isSidebarExpanded ? 'pl-52' : 'pl-16'">
+      <div class="flex min-h-[calc(100vh-1.5rem)] min-w-0 flex-1 flex-col px-3 py-3 sm:px-4 lg:px-6 lg:py-5">
         <header class="flex items-center gap-3 border-b border-white/8 px-1 pb-3 sm:hidden">
           <BrandMark />
         </header>

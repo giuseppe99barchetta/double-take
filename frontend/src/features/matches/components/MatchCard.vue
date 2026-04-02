@@ -26,10 +26,10 @@
           </div>
         </div>
 
-        <div class="flex flex-1 flex-col p-4">
+        <div class="flex min-w-0 flex-1 flex-col p-4">
           <div class="flex items-start justify-between gap-4">
-            <div>
-              <h2 class="text-lg font-semibold tracking-tight text-white">{{ displayName }}</h2>
+            <div class="min-w-0">
+              <h2 class="truncate text-lg font-semibold tracking-tight text-white">{{ displayName }}</h2>
             </div>
             <div class="text-right">
               <p class="text-[0.65rem] uppercase tracking-[0.22em] text-white/35">Confidence</p>
@@ -37,8 +37,8 @@
             </div>
           </div>
 
-          <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/45">
-            <span>{{ match.cameraLabel }}</span>
+          <div class="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/45">
+            <span class="min-w-0 truncate">{{ match.cameraLabel }}</span>
             <span class="text-white/20">•</span>
             <span>{{ formattedDate }}</span>
           </div>

@@ -8,7 +8,7 @@
       leave-from-class="translate-y-0 opacity-100"
       leave-to-class="translate-y-2 opacity-0"
       tag="div"
-      class="pointer-events-none fixed top-5 right-5 z-50 flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3"
+      class="pointer-events-none fixed top-5 right-4 left-4 z-50 flex flex-col gap-3 sm:left-auto sm:right-5 sm:w-96"
     >
       <div
         v-for="toast in toasts"
