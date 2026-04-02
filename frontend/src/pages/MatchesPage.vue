@@ -2,7 +2,6 @@
   <PageContainer>
     <header class="flex flex-col gap-4 border-b border-white/8 pb-4 lg:flex-row lg:items-end lg:justify-between">
       <div class="w-full">
-        <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/65">Matches</p>
         <h1 class="mt-2 text-2xl font-semibold tracking-tight text-white lg:text-3xl">Recognition events</h1>
         <p class="mt-2 text-sm leading-6 text-white/55">Review detections, confirm identities, and clear noise without losing the feed.</p>
       </div>
