@@ -2,6 +2,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import { confirmMatch, fetchMatches, ignoreMatch, renameMatch } from '@/features/matches/services/matches.service';
 import type {
+  Density,
   MatchActiveFilter,
   MatchActiveFilterId,
   MatchCardLayout,
@@ -35,6 +36,18 @@ const getSearchName = (match: MatchEvent) => (match.subjectName ?? 'Unknown').to
 const DEFAULT_MIN_CONFIDENCE = 0;
 const DEFAULT_MAX_CONFIDENCE = 100;
 const HIGH_CONFIDENCE_MIN = 81;
+const DENSITY_STORAGE_KEY = 'matches-density';
+
+const isDensity = (value: string | null): value is Density => value === 'compact' || value === 'comfortable';
+
+const getInitialDensity = (): Density => {
+  if (typeof window === 'undefined') {
+    return 'comfortable';
+  }
+
+  const storedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY);
+  return isDensity(storedDensity) ? storedDensity : 'comfortable';
+};
 
 const sortOrderLabels: Record<MatchSortOrder, string> = {
   newest: 'Newest first',
@@ -75,6 +88,7 @@ export const useMatches = () => {
   const minConfidence = ref(DEFAULT_MIN_CONFIDENCE);
   const maxConfidence = ref(DEFAULT_MAX_CONFIDENCE);
   const overlayVisible = ref(true);
+  const density = ref<Density>(getInitialDensity());
   const activeViewerMatchId = ref<string | null>(null);
 
   watch(minConfidence, (value) => {
@@ -89,6 +103,14 @@ export const useMatches = () => {
     if (maxConfidence.value < minConfidence.value) {
       minConfidence.value = maxConfidence.value;
     }
+  });
+
+  watch(density, (value) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(DENSITY_STORAGE_KEY, value);
   });
 
   const allMatches = computed(() => sourceMatches.value);
@@ -178,6 +200,10 @@ export const useMatches = () => {
 
   const setOverlayVisible = (value: boolean) => {
     overlayVisible.value = value;
+  };
+
+  const setDensity = (value: Density) => {
+    density.value = value;
   };
 
   const openViewer = (id: string) => {
@@ -377,6 +403,7 @@ export const useMatches = () => {
     hasActiveFilters,
     isViewerOpen,
     loading,
+    density,
     matchCount,
     maxConfidence,
     minConfidence,
@@ -392,6 +419,7 @@ export const useMatches = () => {
     searchQuery,
     setMaxConfidence,
     setMinConfidence,
+    setDensity,
     setOverlayVisible,
     setSearchQuery,
     setSortOrder,

@@ -1,4 +1,5 @@
 export type MatchCardLayout = 'grid' | 'list';
+export type Density = 'compact' | 'comfortable';
 export type MatchSortOrder = 'newest' | 'oldest' | 'highest-confidence';
 export type MatchStatusFilter = 'all' | 'recognized' | 'unknown';
 export type MatchActiveFilterId = 'search' | 'status' | 'confidence' | 'sort';

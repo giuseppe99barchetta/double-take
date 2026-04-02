@@ -28,6 +28,7 @@
           :has-active-filters="hasActiveFilters"
           :max-confidence="maxConfidence"
           :min-confidence="minConfidence"
+          :density="density"
           :overlay-visible="overlayVisible"
           :results-summary="resultsSummary"
           :search-query="searchQuery"
@@ -38,6 +39,7 @@
           :view-mode="viewMode"
           :view-options="viewOptions"
           @reset="resetFilters"
+          @update:density="setDensity"
           @update:max-confidence="setMaxConfidence"
           @update:min-confidence="setMinConfidence"
           @update:overlay-visible="setOverlayVisible"
@@ -79,22 +81,22 @@
 
         <div
           v-if="loading"
-          class="grid gap-4 sm:grid-cols-2"
+          :class="['grid', gridGapClass, gridClass]"
         >
           <div
             v-for="n in 6"
             :key="n"
-            class="animate-pulse overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-3"
+            class="animate-pulse overflow-hidden rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-2.5"
           >
             <div class="aspect-[4/3] rounded-xl bg-white/5" />
-            <div class="mt-3 h-4 w-2/3 rounded bg-white/5" />
-            <div class="mt-2 h-3 w-1/2 rounded bg-white/5" />
+            <div class="mt-2.5 h-3.5 w-2/3 rounded bg-white/5" />
+            <div class="mt-1.5 h-3 w-1/2 rounded bg-white/5" />
           </div>
         </div>
 
         <div
           v-else
-          class="grid gap-4 sm:grid-cols-2"
+          :class="['grid', gridGapClass, gridClass]"
         >
           <div
             v-if="matches.length === 0"
@@ -111,6 +113,7 @@
           <MatchCard
             v-for="match in matches"
             :key="match.id"
+            :density="density"
             layout="grid"
             :match="match"
             :overlay-visible="overlayVisible"
@@ -133,6 +136,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import MatchActiveFilters from '@/features/matches/components/MatchActiveFilters.vue';
 import MatchCard from '@/features/matches/components/MatchCard.vue';
 import MatchQuickFilters from '@/features/matches/components/MatchQuickFilters.vue';
@@ -149,6 +153,7 @@ const {
   clearFilter,
   closeViewer,
   confirm,
+  density,
   error,
   activeViewerMatch,
   hasActiveFilters,
@@ -167,6 +172,7 @@ const {
   searchQuery,
   setMaxConfidence,
   setMinConfidence,
+  setDensity,
   setOverlayVisible,
   setSearchQuery,
   setSortOrder,
@@ -179,4 +185,12 @@ const {
   viewMode,
   viewOptions,
 } = useMatches();
+
+const gridClass = computed(() =>
+  density.value === 'compact'
+    ? '[grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]'
+    : '[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]',
+);
+
+const gridGapClass = computed(() => (density.value === 'compact' ? 'gap-3' : 'gap-4'));
 </script>

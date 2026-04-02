@@ -91,7 +91,25 @@
 
     <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
       <div class="text-sm text-white/55">{{ resultsSummary }}</div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="inline-flex items-center rounded-full border border-white/10 bg-[#0c1621] p-1">
+          <button
+            type="button"
+            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
+            :class="density === 'comfortable' ? 'bg-white text-slate-950' : 'text-white/65 hover:text-white'"
+            @click="emit('update:density', 'comfortable')"
+          >
+            Comfortable
+          </button>
+          <button
+            type="button"
+            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
+            :class="density === 'compact' ? 'bg-white text-slate-950' : 'text-white/65 hover:text-white'"
+            @click="emit('update:density', 'compact')"
+          >
+            Compact
+          </button>
+        </div>
         <button
           type="button"
           class="inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm font-medium transition"
@@ -116,13 +134,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import type { MatchCardLayout, MatchSortOrder, MatchStatusFilter } from '@/features/matches/types';
+import type { Density, MatchCardLayout, MatchSortOrder, MatchStatusFilter } from '@/features/matches/types';
 
 defineProps<{
   hasActiveFilters: boolean;
   maxConfidence: number;
   minConfidence: number;
   overlayVisible: boolean;
+  density: Density;
   resultsSummary: string;
   searchQuery: string;
   sortOptions: ReadonlyArray<{ label: string; value: MatchSortOrder }>;
@@ -139,6 +158,7 @@ const emit = defineEmits<{
   (event: 'reset'): void;
   (event: 'update:maxConfidence', value: number): void;
   (event: 'update:minConfidence', value: number): void;
+  (event: 'update:density', value: Density): void;
   (event: 'update:overlayVisible', value: boolean): void;
   (event: 'update:searchQuery', value: string): void;
   (event: 'update:sortOrder', value: MatchSortOrder): void;
