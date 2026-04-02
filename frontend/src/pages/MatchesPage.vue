@@ -28,7 +28,7 @@
           :has-active-filters="hasActiveFilters"
           :max-confidence="maxConfidence"
           :min-confidence="minConfidence"
-          :density="density"
+          :zoom="zoom"
           :overlay-visible="overlayVisible"
           :results-summary="resultsSummary"
           :search-query="searchQuery"
@@ -39,7 +39,7 @@
           :view-mode="viewMode"
           :view-options="viewOptions"
           @reset="resetFilters"
-          @update:density="setDensity"
+          @update:zoom="setZoom"
           @update:max-confidence="setMaxConfidence"
           @update:min-confidence="setMinConfidence"
           @update:overlay-visible="setOverlayVisible"
@@ -79,10 +79,12 @@
           </div>
         </BaseCard>
 
-        <div
-          v-if="loading"
-          :class="['grid', gridGapClass, gridClass]"
-        >
+        <div class="transition-all duration-150" @wheel="onGridWheel">
+          <div
+            v-if="loading"
+            class="grid content-start justify-items-stretch gap-3 transition-all duration-150"
+            :style="gridStyle"
+          >
           <div
             v-for="n in 6"
             :key="n"
@@ -92,12 +94,13 @@
             <div class="mt-2.5 h-3.5 w-2/3 rounded bg-white/5" />
             <div class="mt-1.5 h-3 w-1/2 rounded bg-white/5" />
           </div>
-        </div>
+          </div>
 
-        <div
-          v-else
-          :class="['grid', gridGapClass, gridClass]"
-        >
+          <div
+            v-else
+            class="grid content-start justify-items-stretch gap-3 transition-all duration-150"
+            :style="gridStyle"
+          >
           <div
             v-if="matches.length === 0"
             class="col-span-full"
@@ -113,7 +116,6 @@
           <MatchCard
             v-for="match in matches"
             :key="match.id"
-            :density="density"
             layout="grid"
             :match="match"
             :overlay-visible="overlayVisible"
@@ -121,6 +123,7 @@
             @ignore="ignore"
             @preview="openViewer"
           />
+          </div>
         </div>
 
       <MatchViewerModal
@@ -153,7 +156,6 @@ const {
   clearFilter,
   closeViewer,
   confirm,
-  density,
   error,
   activeViewerMatch,
   hasActiveFilters,
@@ -170,9 +172,9 @@ const {
   resetFilters,
   resultsSummary,
   searchQuery,
+  setZoom,
   setMaxConfidence,
   setMinConfidence,
-  setDensity,
   setOverlayVisible,
   setSearchQuery,
   setSortOrder,
@@ -182,15 +184,31 @@ const {
   statusFilter,
   statusFilterOptions,
   unknownCount,
+  zoom,
   viewMode,
   viewOptions,
 } = useMatches();
 
-const gridClass = computed(() =>
-  density.value === 'compact'
-    ? '[grid-template-columns:repeat(auto-fill,minmax(220px,1fr))]'
-    : '[grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]',
-);
+const BASE_SIZE = 260;
+const MAX_SIZE = 520;
 
-const gridGapClass = computed(() => (density.value === 'compact' ? 'gap-3' : 'gap-4'));
+const gridStyle = computed(() => {
+  const size = Math.min(BASE_SIZE * zoom.value, MAX_SIZE);
+
+  return {
+    gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${size}px), ${size}px))`,
+    justifyContent: 'start',
+  };
+});
+
+const onGridWheel = (event: WheelEvent) => {
+  if (!event.ctrlKey) {
+    return;
+  }
+
+  event.preventDefault();
+  const speed = zoom.value > 1.5 ? 0.03 : 0.06;
+  const delta = event.deltaY > 0 ? -speed : speed;
+  setZoom(zoom.value + delta);
+};
 </script>

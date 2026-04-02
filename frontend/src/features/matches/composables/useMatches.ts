@@ -2,7 +2,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 
 import { confirmMatch, fetchMatches, ignoreMatch, renameMatch } from '@/features/matches/services/matches.service';
 import type {
-  Density,
   MatchActiveFilter,
   MatchActiveFilterId,
   MatchCardLayout,
@@ -36,17 +35,36 @@ const getSearchName = (match: MatchEvent) => (match.subjectName ?? 'Unknown').to
 const DEFAULT_MIN_CONFIDENCE = 0;
 const DEFAULT_MAX_CONFIDENCE = 100;
 const HIGH_CONFIDENCE_MIN = 81;
-const DENSITY_STORAGE_KEY = 'matches-density';
+const ZOOM_STORAGE_KEY = 'matches-zoom';
+const MIN_ZOOM = 0.7;
+const MAX_ZOOM = 2.5;
+const DEFAULT_ZOOM = 1;
+const SNAP_POINTS = [MIN_ZOOM, DEFAULT_ZOOM, 1.5, 2, MAX_ZOOM] as const;
+const SNAP_THRESHOLD = 0.04;
 
-const isDensity = (value: string | null): value is Density => value === 'compact' || value === 'comfortable';
+const clampZoom = (value: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
 
-const getInitialDensity = (): Density => {
+const snapZoom = (value: number) => {
+  const closestPoint = SNAP_POINTS.reduce((closest, point) => {
+    return Math.abs(point - value) < Math.abs(closest - value) ? point : closest;
+  }, SNAP_POINTS[0]);
+
+  return Math.abs(closestPoint - value) <= SNAP_THRESHOLD ? closestPoint : value;
+};
+
+const normalizeZoom = (value: number) => snapZoom(clampZoom(value));
+
+const getInitialZoom = (): number => {
   if (typeof window === 'undefined') {
-    return 'comfortable';
+    return DEFAULT_ZOOM;
   }
 
-  const storedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY);
-  return isDensity(storedDensity) ? storedDensity : 'comfortable';
+  const storedZoom = Number(window.localStorage.getItem(ZOOM_STORAGE_KEY));
+  if (Number.isNaN(storedZoom)) {
+    return DEFAULT_ZOOM;
+  }
+
+  return normalizeZoom(storedZoom);
 };
 
 const sortOrderLabels: Record<MatchSortOrder, string> = {
@@ -88,7 +106,7 @@ export const useMatches = () => {
   const minConfidence = ref(DEFAULT_MIN_CONFIDENCE);
   const maxConfidence = ref(DEFAULT_MAX_CONFIDENCE);
   const overlayVisible = ref(true);
-  const density = ref<Density>(getInitialDensity());
+  const zoom = ref(getInitialZoom());
   const activeViewerMatchId = ref<string | null>(null);
 
   watch(minConfidence, (value) => {
@@ -105,12 +123,18 @@ export const useMatches = () => {
     }
   });
 
-  watch(density, (value) => {
+  watch(zoom, (value) => {
+    const normalizedZoom = normalizeZoom(value);
+    if (zoom.value !== normalizedZoom) {
+      zoom.value = normalizedZoom;
+      return;
+    }
+
     if (typeof window === 'undefined') {
       return;
     }
 
-    window.localStorage.setItem(DENSITY_STORAGE_KEY, value);
+    window.localStorage.setItem(ZOOM_STORAGE_KEY, String(zoom.value));
   });
 
   const allMatches = computed(() => sourceMatches.value);
@@ -202,8 +226,8 @@ export const useMatches = () => {
     overlayVisible.value = value;
   };
 
-  const setDensity = (value: Density) => {
-    density.value = value;
+  const setZoom = (value: number) => {
+    zoom.value = normalizeZoom(value);
   };
 
   const openViewer = (id: string) => {
@@ -403,7 +427,7 @@ export const useMatches = () => {
     hasActiveFilters,
     isViewerOpen,
     loading,
-    density,
+    zoom,
     matchCount,
     maxConfidence,
     minConfidence,
@@ -419,7 +443,7 @@ export const useMatches = () => {
     searchQuery,
     setMaxConfidence,
     setMinConfidence,
-    setDensity,
+    setZoom,
     setOverlayVisible,
     setSearchQuery,
     setSortOrder,

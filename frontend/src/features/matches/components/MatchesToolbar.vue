@@ -92,23 +92,19 @@
     <div class="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
       <div class="text-sm text-white/55">{{ resultsSummary }}</div>
       <div class="flex flex-wrap items-center gap-2">
-        <div class="inline-flex items-center rounded-full border border-white/10 bg-[#0c1621] p-1">
-          <button
-            type="button"
-            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
-            :class="density === 'comfortable' ? 'bg-white text-slate-950' : 'text-white/65 hover:text-white'"
-            @click="emit('update:density', 'comfortable')"
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0c1621] px-3 py-1.5">
+          <i class="pi pi-search-minus text-[0.7rem] text-white/50" />
+          <input
+            v-model="zoomModel"
+            type="range"
+            min="0.7"
+            max="2.5"
+            step="0.05"
+            class="h-2 w-28 cursor-pointer appearance-none rounded-full bg-white/10 accent-cyan-300"
+            aria-label="Adjust matches zoom"
           >
-            Comfortable
-          </button>
-          <button
-            type="button"
-            class="rounded-full px-3 py-1.5 text-xs font-medium transition"
-            :class="density === 'compact' ? 'bg-white text-slate-950' : 'text-white/65 hover:text-white'"
-            @click="emit('update:density', 'compact')"
-          >
-            Compact
-          </button>
+          <i class="pi pi-search-plus text-[0.7rem] text-white/50" />
+          <span class="w-12 text-right text-xs font-medium text-white/70">{{ zoomPercent }}%</span>
         </div>
         <button
           type="button"
@@ -132,16 +128,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-import type { Density, MatchCardLayout, MatchSortOrder, MatchStatusFilter } from '@/features/matches/types';
+import type { MatchCardLayout, MatchSortOrder, MatchStatusFilter } from '@/features/matches/types';
 
-defineProps<{
+const props = defineProps<{
   hasActiveFilters: boolean;
   maxConfidence: number;
   minConfidence: number;
   overlayVisible: boolean;
-  density: Density;
+  zoom: number;
   resultsSummary: string;
   searchQuery: string;
   sortOptions: ReadonlyArray<{ label: string; value: MatchSortOrder }>;
@@ -158,13 +154,20 @@ const emit = defineEmits<{
   (event: 'reset'): void;
   (event: 'update:maxConfidence', value: number): void;
   (event: 'update:minConfidence', value: number): void;
-  (event: 'update:density', value: Density): void;
+  (event: 'update:zoom', value: number): void;
   (event: 'update:overlayVisible', value: boolean): void;
   (event: 'update:searchQuery', value: string): void;
   (event: 'update:sortOrder', value: MatchSortOrder): void;
   (event: 'update:statusFilter', value: MatchStatusFilter): void;
   (event: 'update:viewMode', value: MatchCardLayout): void;
 }>();
+
+const zoomModel = computed({
+  get: () => props.zoom,
+  set: (value) => emit('update:zoom', Number(value)),
+});
+
+const zoomPercent = computed(() => Math.round(props.zoom * 100));
 
 const handleSearchInput = (event: Event) => {
   emit('update:searchQuery', (event.target as HTMLInputElement).value);
