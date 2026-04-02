@@ -21,6 +21,13 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Z-index scale: ensures proper stacking context hierarchy */
+  /* Tooltips and popovers (rendered via portal): z-50+ */
+  /* Modals and overlays: z-40 */
+  /* Dropdowns and menus: z-30 */
+  /* Sidebar: z-20 */
+  /* Main content: z-0 (default) */
 }
 
 * {

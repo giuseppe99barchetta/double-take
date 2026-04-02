@@ -1,6 +1,7 @@
 <template>
   <RouterLink :to="to" custom v-slot="{ href, navigate, isActive, isExactActive }">
     <a
+      ref="linkElement"
       :href="href"
       :aria-label="label"
       class="group relative rounded-2xl transition duration-200"
@@ -9,6 +10,8 @@
         isActive || isExactActive ? activeClasses : idleClasses,
       ]"
       @click="navigate"
+      @mouseenter="showTooltip"
+      @mouseleave="hideTooltip"
     >
       <span
         class="shrink-0 transition"
@@ -18,22 +21,17 @@
       </span>
 
       <span v-if="!compact" class="min-w-0 flex-1 text-sm font-medium text-white">{{ label }}</span>
-
-      <span
-        v-if="compact"
-        role="tooltip"
-        class="pointer-events-none absolute left-[calc(100%+0.7rem)] top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-md bg-[#111a25] px-2.5 py-1.5 text-xs font-medium text-white shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] ring-1 ring-white/8 group-hover:block"
-      >
-        {{ label }}
-      </span>
     </a>
   </RouterLink>
+
+  <Tooltip v-if="compact" :text="label" :trigger-ref="linkElement" :visible="isTooltipVisible" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { Camera, Image, Settings, type LucideIcon } from 'lucide-vue-next';
+import Tooltip from './Tooltip.vue';
 
 const props = defineProps<{
   compact?: boolean;
@@ -41,6 +39,18 @@ const props = defineProps<{
   label: string;
   to: string;
 }>();
+
+const linkElement = ref<HTMLElement | null>(null);
+const isTooltipVisible = ref(false);
+
+const showTooltip = () => {
+  if (!props.compact) return;
+  isTooltipVisible.value = true;
+};
+
+const hideTooltip = () => {
+  isTooltipVisible.value = false;
+};
 
 const icons: Record<string, LucideIcon> = {
   image: Image,

@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { EditorState, RangeSetBuilder, StateEffect, StateField } from '@codemirror/state';
-import { foldGutter, foldKeymap, HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { foldKeymap, HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { yaml } from '@codemirror/lang-yaml';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
@@ -95,7 +95,6 @@ const createEditor = () => {
         history(),
         drawSelection(),
         lineNumbers(),
-        foldGutter(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
         yaml(),

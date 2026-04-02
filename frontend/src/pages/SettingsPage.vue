@@ -175,7 +175,7 @@
 
       <!-- YAML editor -->
       <SurfaceCard class="overflow-hidden border-white/12 bg-white/[0.04]">
-        <div class="sticky top-0 z-10 -mx-5 -mt-5 border-b border-white/10 bg-[linear-gradient(180deg,rgba(8,16,28,0.98),rgba(8,16,28,0.9))] px-5 py-5 backdrop-blur-xl lg:-mx-6 lg:-mt-6 lg:px-6 lg:py-6">
+        <div class="sticky top-0 z-10 -mx-5 -mt-5 border-b border-white/10 px-5 py-5 lg:-mx-6 lg:-mt-6 lg:px-6 lg:py-6">
           <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div class="max-w-2xl">
               <p class="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-cyan-100/60">Configuration</p>
@@ -224,9 +224,6 @@
                 </button>
               </div>
 
-              <div class="text-xs leading-6 text-white/38 xl:text-right">
-                Modified lines are highlighted until the next successful save or reset.
-              </div>
             </div>
           </div>
 
