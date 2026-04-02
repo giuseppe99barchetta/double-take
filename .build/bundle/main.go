@@ -81,10 +81,10 @@ func main() {
 	app := &cli.App{
 		Name:        "double-take",
 		Version:     "1.13.11.8",
-		Author:      "skrashevich",
+		Author:      "giuseppe99barchetta",
 		Usage:       "double-take",
 		Description: "double-take",
-		Copyright:   `(c) skrashevich`,
+		Copyright:   `(c) giuseppe99barchetta`,
 		Action:      start,
 		Commands: []cli.Command{
 			{

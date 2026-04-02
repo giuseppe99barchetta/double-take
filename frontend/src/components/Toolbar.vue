@@ -88,7 +88,7 @@ export default {
             label: 'Sponsor',
             icon: 'pi pi-heart',
             command: () => {
-              window.open('https://github.com/sponsors/jakowenko');
+              window.open('https://github.com/sponsors/giuseppe99barchetta');
             },
           },
           { label: 'Logs', icon: 'pi pi-fw pi-file', to: '/logs' },
@@ -102,7 +102,7 @@ export default {
             label: 'Sponsor',
             icon: 'pi pi-heart',
             command: () => {
-              window.open('https://github.com/sponsors/jakowenko');
+              window.open('https://github.com/sponsors/giuseppe99barchetta');
             },
           },
           { label: 'Logs', icon: 'pi pi-fw pi-file', to: '/logs' },
@@ -134,7 +134,7 @@ export default {
       const obj = {
         label: `v${this.version}`,
         command: () => {
-          window.open('https://github.com/skrashevich/double-take');
+          window.open('https://github.com/giuseppe99barchetta/double-take');
         },
       };
 
@@ -179,7 +179,7 @@ export default {
         try {
           const sha7 = this.version.split('-').pop();
           const { data: actions } = await ApiService.get(
-            'https://api.github.com/repos/skrashevich/double-take/actions/runs',
+            'https://api.github.com/repos/giuseppe99barchetta/double-take/actions/runs',
           );
           const [currentBuild] = actions.workflow_runs.filter((run) => run.head_sha.includes(sha7));
           if (currentBuild) {
@@ -206,7 +206,7 @@ export default {
       }
     },
     dockerHub() {
-      window.open('https://hub.docker.com/r/skrashevich/double-take/tags?page=1&ordering=last_updated');
+      window.open('https://hub.docker.com/r/ciuse99/double-take/tags?page=1&ordering=last_updated');
     },
   },
   watch: {

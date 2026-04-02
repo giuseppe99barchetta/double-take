@@ -23,7 +23,7 @@ If applicable, add screenshots to help explain your problem.
  - Architecture or platform: [e.g. amd64, arm64, raspberry3, etc]
  - OS: [e.g. Ubuntu, macOS, Windows]
  - Browser (if applicable) [e.g. Chrome, Safari]
- - Docker image (if applicable) [e.g. skrashevich/double-take:latest]
+ - Docker image (if applicable) [e.g. ciuse99/double-take:latest]
 
 **Configuration**
 You configuration files, related to problem

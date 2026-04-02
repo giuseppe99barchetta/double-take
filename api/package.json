@@ -9,17 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/skrashevich/double-take.git"
+    "url": "https://github.com/giuseppe99barchetta/double-take.git"
   },
   "engines": {
     "node": ">=20.0.0"
   },
-  "author": "Sergei Krashevich",
+  "author": "Giuseppe Barchetta",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/skrashevich/double-take/issues"
+    "url": "https://github.com/giuseppe99barchetta/double-take/issues"
   },
-  "homepage": "https://github.com/skrashevich/double-take#readme",
+  "homepage": "https://github.com/giuseppe99barchetta/double-take#readme",
   "dependencies": {
     "@aws-sdk/client-rekognition": "^3.105.0",
     "@mhoc/axios-digest-auth": "^0.8.0",

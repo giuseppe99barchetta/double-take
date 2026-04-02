@@ -1,0 +1,1040 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Double Take API",
+    "description": "API for match processing, training, config management, camera-triggered recognition, and system status.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Matches"
+    },
+    {
+      "name": "Config"
+    },
+    {
+      "name": "Cameras"
+    },
+    {
+      "name": "System"
+    }
+  ],
+  "paths": {
+    "/api/match": {
+      "post": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Fetch matches",
+        "description": "Returns paginated matches. Optional filters are accepted in request body.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchQueryRequest"
+              },
+              "example": {
+                "sinceId": 0,
+                "filters": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Match page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Delete matches",
+        "description": "Deletes match records by id and removes image files.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteMatchesRequest"
+              },
+              "example": {
+                "ids": [
+                  1,
+                  2
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delete status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/train/add/{name}": {
+      "post": {
+        "tags": [
+          "Matches"
+        ],
+        "summary": "Queue training for a subject",
+        "description": "Adds training data for a subject from uploaded files, URLs, or match IDs.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrainAddJsonRequest"
+              },
+              "example": {
+                "ids": [
+                  1001
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files[]": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Queue confirmation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrainAddResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/config": {
+      "get": {
+        "tags": [
+          "Config"
+        ],
+        "summary": "Get configuration",
+        "description": "Returns runtime config (JSON by default). Use format=yaml for raw YAML.",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "yaml",
+                "yaml-with-defaults"
+              ],
+              "default": "json"
+            }
+          },
+          {
+            "name": "redact",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "If present with empty value, response is JSON with secrets redacted."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Config JSON or YAML",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Config"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Config"
+        ],
+        "summary": "Update YAML configuration",
+        "description": "Validates and writes config YAML to storage.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigPatchRequest"
+              },
+              "example": {
+                "code": "auth: false\nmqtt:\n  host: 127.0.0.1\n"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Config saved"
+          },
+          "400": {
+            "description": "Invalid YAML"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/status/mqtt": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Get MQTT status",
+        "description": "Returns MQTT connection state from runtime client.",
+        "responses": {
+          "200": {
+            "description": "MQTT status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MqttStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/camera/{name}": {
+      "get": {
+        "tags": [
+          "Cameras"
+        ],
+        "summary": "Trigger camera snapshot recognition",
+        "description": "Loads camera snapshot config and proxies recognition output.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attempts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "break",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "true"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recognition output",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Camera"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid camera config"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "authorization"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": "Unauthorized"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Match": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "camera": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "zones": {
+            "type": "array",
+            "items": {}
+          },
+          "file": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "filename": {
+                "type": "string"
+              },
+              "width": {
+                "type": "integer"
+              },
+              "height": {
+                "type": "integer"
+              }
+            }
+          },
+          "isTrained": {
+            "type": "boolean"
+          },
+          "response": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "detector": {
+                  "type": "string"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "match": {
+                        "type": "boolean"
+                      },
+                      "confidence": {
+                        "type": "number"
+                      },
+                      "box": {
+                        "type": "object",
+                        "properties": {
+                          "top": {
+                            "type": "number"
+                          },
+                          "left": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "detector": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "filename": {
+                        "type": "string"
+                      },
+                      "base64": {
+                        "type": "string",
+                        "nullable": true
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "file",
+          "response"
+        ]
+      },
+      "Camera": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "camera": {
+            "type": "string"
+          },
+          "zones": {
+            "type": "array",
+            "items": {}
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "person": {
+                "type": "integer"
+              },
+              "match": {
+                "type": "integer"
+              },
+              "miss": {
+                "type": "integer"
+              },
+              "unknown": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": true
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "misses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "unknowns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "token": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "id",
+          "camera",
+          "matches",
+          "misses",
+          "unknowns"
+        ]
+      },
+      "Config": {
+        "type": "object",
+        "properties": {
+          "auth": {
+            "type": "boolean"
+          },
+          "token": {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          },
+          "detect": {
+            "type": "object",
+            "properties": {
+              "match": {
+                "$ref": "#/components/schemas/DetectThreshold"
+              },
+              "unknown": {
+                "$ref": "#/components/schemas/DetectThreshold"
+              }
+            },
+            "additionalProperties": true
+          },
+          "mqtt": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "port": {
+                "type": "integer"
+              },
+              "protocol": {
+                "type": "string"
+              },
+              "client_id": {
+                "type": "string"
+              },
+              "topics": {
+                "type": "object",
+                "properties": {
+                  "frigate": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ]
+                  },
+                  "matches": {
+                    "type": "string"
+                  },
+                  "cameras": {
+                    "type": "string"
+                  },
+                  "homeassistant": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          },
+          "detectors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "timeout": {
+                  "type": "integer"
+                },
+                "det_prob_threshold": {
+                  "type": "number"
+                },
+                "opencv_face_required": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "cameras": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "snapshot": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "topic": {
+                      "type": "string"
+                    },
+                    "crop": {
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "detect": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "masks": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "storage": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "config": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "secrets": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "extension": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "media": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              },
+              "tmp": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "MqttStatus": {
+        "type": "object",
+        "properties": {
+          "connected": {
+            "type": "boolean"
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          }
+        },
+        "required": [
+          "connected",
+          "status"
+        ]
+      },
+      "DetectThreshold": {
+        "type": "object",
+        "properties": {
+          "save": {
+            "type": "boolean"
+          },
+          "base64": {
+            "type": "boolean"
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "purge": {
+            "type": "integer"
+          },
+          "min_area": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": true
+      },
+      "MatchPage": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "matches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Match"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "limit",
+          "matches"
+        ]
+      },
+      "MatchQueryRequest": {
+        "type": "object",
+        "properties": {
+          "sinceId": {
+            "type": "integer"
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cameras": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "detectors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confidence": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "DeleteMatchesRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "TrainAddJsonRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "ConfigPatchRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "TrainAddResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "location",
+                "key",
+                "error"
+              ]
+            }
+          }
+        },
+        "required": [
+          "errors"
+        ]
+      }
+    }
+  }
+}
