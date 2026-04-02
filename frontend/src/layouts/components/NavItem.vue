@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
-import { Camera, Image, Settings, type LucideIcon } from 'lucide-vue-next';
+import { Camera, FileText, Image, Settings, Users, type LucideIcon } from 'lucide-vue-next';
 import Tooltip from '@/shared/ui/Tooltip.vue';
 
 const props = withDefaults(
@@ -68,6 +68,8 @@ const icons: Record<string, LucideIcon> = {
   image: Image,
   camera: Camera,
   settings: Settings,
+  logs: FileText,
+  train: Users,
 };
 
 const iconComponent = computed(() => icons[props.icon] ?? Image);

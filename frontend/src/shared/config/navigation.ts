@@ -15,9 +15,19 @@ export const navigationItems: NavigationItem[] = [
     to: '/cameras',
     label: 'Cameras',
   },
+    {
+    icon: 'train',
+    to: '/train',
+    label: 'Train',
+  },
   {
     icon: 'settings',
     to: '/settings',
     label: 'Settings',
+  },
+  {
+    icon: 'logs',
+    to: '/logs',
+    label: 'Logs',
   },
 ];

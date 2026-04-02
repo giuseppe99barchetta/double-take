@@ -32,6 +32,22 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/logs',
+    name: 'logs',
+    component: () => import('@/pages/LogsPage.vue'),
+    meta: {
+      title: 'Logs',
+    },
+  },
+  {
+    path: '/train',
+    name: 'train',
+    component: () => import('@/pages/TrainPage.vue'),
+    meta: {
+      title: 'Train',
+    },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/matches',
   },
